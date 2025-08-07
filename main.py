@@ -82,7 +82,7 @@ def main():
         ui.render_tips()
     
     # 메인 입력 섹션 렌더링
-    requirement_input, analysis_type, priority_level, focus_areas = ui.render_input_section()
+    requirement_input, analysis_type, focus_areas = ui.render_input_section()
     
     # 분석 버튼 및 유효성 검사
     should_analyze = ui.render_analysis_button(requirement_input)
@@ -98,7 +98,6 @@ def main():
         # 현재 입력값들을 세션에 저장
         st.session_state.requirement_input = requirement_input
         st.session_state.analysis_type = analysis_type
-        st.session_state.priority_level = priority_level
         st.session_state.focus_areas = focus_areas
         
         # 분석 실행
@@ -136,10 +135,6 @@ def main():
         if hasattr(st.session_state, 'manual_context') and st.session_state.manual_context:
             with st.expander("📚 시스템 매뉴얼 참고 정보"):
                 st.write(f"**검색 키워드:** {st.session_state.manual_context['search_keywords']}")
-                st.write(f"**검색된 문서 수:** {st.session_state.manual_context['doc_count']}개")
-                st.write("**관련 내용 미리보기:**")
-                st.text(st.session_state.manual_context['content_preview'])
-    
         
         # 요약 통계 표시
         if st.session_state.stats:
@@ -177,7 +172,6 @@ def main():
                 checklist = openai_client.generate_checklist(
                     st.session_state.requirement_input, 
                     st.session_state.analysis_result, 
-                    st.session_state.priority_level
                 )
             
             if checklist:
@@ -193,7 +187,7 @@ def main():
         if st.button("🔄 새로운 분석 시작", type="primary", use_container_width=True):
             # 세션 상태 초기화
             for key in ['analysis_result', 'result_data', 'checklist', 'stats', 
-                       'requirement_input', 'analysis_type', 'priority_level', 'focus_areas']:
+                       'requirement_input', 'analysis_type', 'focus_areas']:
                 if key in st.session_state:
                     del st.session_state[key]
             st.rerun()

@@ -57,7 +57,7 @@ class PDFSearchClient:
             search_keywords = search_chain.invoke({"requirement": requirement_text})
             
             # 매뉴얼에서 관련 내용 검색
-            docs = self.retriever.get_relevant_documents(search_keywords)
+            docs = self.retriever.invoke(search_keywords)
             
             if not docs:
                 return None
@@ -90,7 +90,7 @@ class PDFSearchClient:
         # 매뉴얼 내용을 포함한 분석 프롬프트
         analysis_prompt = ChatPromptTemplate.from_template(
             """당신은 시스템 분석 전문가입니다. 
-            사용자 요구사항과 시스템 매뉴얼 내용을 참고하여 구현 전 반드시 확인이 필요한 사항들을 분석해주세요.
+            사용자 요구사항과 시스템 매뉴얼 내용을 참고하여 구현 전 요청자에게 반드시 확인이 필요한 사항들을 분석해주세요.
 
             사용자 요구사항:
             {requirement}

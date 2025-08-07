@@ -38,13 +38,6 @@ class UIComponents:
                 help="상세 분석은 더 많은 확인사항을 도출합니다."
             )
             
-            priority_level = st.selectbox(
-                "우선순위 수준:",
-                ["높음", "보통", "낮음"],
-                index=1,
-                help="체크리스트의 상세도를 결정합니다."
-            )
-            
             # 집중 분석 영역
             st.subheader("🎯 집중 분석 영역")
             focus_areas = []
@@ -66,7 +59,7 @@ class UIComponents:
                 if st.checkbox("보안"):
                     focus_areas.append("보안")
         
-        return requirement_input, analysis_type, priority_level, focus_areas
+        return requirement_input, analysis_type, focus_areas
     
     def render_analysis_button(self, requirement_input):
         # 분석 버튼을 렌더링하고 유효성 검사를 수행하는 함수
