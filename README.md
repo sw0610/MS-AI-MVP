@@ -10,6 +10,7 @@
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org/)
 
 ## 🎯 프로젝트 개요
+![project diagram](./data/diagram.png)
 
 ### 📋 문제 정의
 - **모호한 요구사항**으로 인한 개발 지연과 반복 작업
