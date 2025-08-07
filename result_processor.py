@@ -30,6 +30,12 @@ class ResultProcessor:
             st.write(result_data["raw_text"])
             return
         
+        manual_refs = result_data.get("manual_references", [])
+        if manual_refs:
+            st.subheader("📚 시스템 매뉴얼 참고사항")
+            for i, ref in enumerate(manual_refs, 1):
+                st.info(f"{i}. {ref}")
+        
         # 구조화된 데이터인 경우
         # 요약
         if "analysis_summary" in result_data:
@@ -62,12 +68,16 @@ class ResultProcessor:
                         category = item.get('category', '기타')
                         question = item.get('question', '질문 없음')
                         reason = item.get('reason', '이유 없음')
+                        manual_ref = item.get('manual_reference', '')
                         
                         with st.expander(f"[{category}] {question}"):
                             st.write("**확인이 필요한 이유:**")
                             st.write(reason)
+                            if manual_ref:
+                                st.write("**매뉴얼 참고사항:**")
+                                st.write(manual_ref)
                     st.markdown("---")
-        
+                
         # 잠재적 이슈
         issues = result_data.get("potential_issues", [])
         if issues:
@@ -83,42 +93,6 @@ class ResultProcessor:
         
         st.header("✅ 개발 체크리스트")
         st.markdown(checklist)
-    
-    def create_download_content(self, requirement_text, analysis_result, checklist):
-        # 다운로드할 내용을 생성하는 함수
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        content = f"""# 사용자 요구사항 분석 보고서
-
-**생성일시:** {timestamp}
-
-## 📋 원본 요구사항
-```
-{requirement_text}
-```
-
-## 🔍 분석 결과
-{analysis_result}
-
----
-
-## ✅ 개발 체크리스트
-{checklist}
-
----
-*이 문서는 사용자 요구사항 분석기에 의해 자동 생성되었습니다.*
-"""
-        return content
-    
-    def get_download_filename(self, requirement_text):
-        # 다운로드 파일명을 생성하는 함수
-        # 요구사항 텍스트에서 안전한 파일명 생성
-        safe_text = requirement_text[:30].replace(' ', '_').replace('\n', '_')
-        # 특수문자 제거
-        import re
-        safe_text = re.sub(r'[^\w\-_]', '', safe_text)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        return f"requirement_analysis_{safe_text}_{timestamp}.md"
     
     def create_summary_stats(self, requirement_text, result_data):
         # 분석 결과 요약 통계를 생성하는 함수

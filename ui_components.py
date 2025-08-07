@@ -20,7 +20,7 @@ class UIComponents:
             requirement_input = st.text_area(
                 "사용자 요구사항을 입력하세요:",
                 height=200,
-                placeholder="예시: 챗봇 링크를 메인 화면에 추가해주세요.\n예시: 계약금액이 구매요청 금액을 넘어가지 않게 해주세요.\n예시: 엑셀 업로드 시 중복 데이터는 자동으로 제거해주세요.",
+                placeholder="예시: 새로운 메뉴를 메인 화면에 추가해주세요.\n예시: 엑셀 업로드 시 중복 데이터는 자동으로 제거해주세요.",
                 help="구현하고자 하는 기능이나 변경사항을 구체적으로 입력해주세요.",
                 max_chars=Config.MAX_TEXT_LENGTH
             )

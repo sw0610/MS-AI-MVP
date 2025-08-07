@@ -113,6 +113,10 @@ def main():
             # 분석 결과를 세션에 저장
             st.session_state.analysis_result = analysis_result
             
+            # 매뉴얼 컨텍스트 정보도 저장
+            manual_context = openai_client.get_manual_context(requirement_input)
+            st.session_state.manual_context = manual_context
+        
             # 분석 결과 파싱
             result_data = result_processor.parse_analysis_result(analysis_result)
             if result_data:
@@ -127,6 +131,15 @@ def main():
     # 저장된 분석 결과가 있으면 표시
     if st.session_state.analysis_result and st.session_state.result_data:
         st.header("📋 분석 결과")
+
+        # 매뉴얼 검색 정보 표시 (새로 추가)
+        if hasattr(st.session_state, 'manual_context') and st.session_state.manual_context:
+            with st.expander("📚 시스템 매뉴얼 참고 정보"):
+                st.write(f"**검색 키워드:** {st.session_state.manual_context['search_keywords']}")
+                st.write(f"**검색된 문서 수:** {st.session_state.manual_context['doc_count']}개")
+                st.write("**관련 내용 미리보기:**")
+                st.text(st.session_state.manual_context['content_preview'])
+    
         
         # 요약 통계 표시
         if st.session_state.stats:
@@ -174,31 +187,6 @@ def main():
         if st.session_state.checklist:
             st.markdown("---")
             result_processor.display_checklist(st.session_state.checklist)
-            
-            # 다운로드 섹션
-            st.markdown("---")
-            st.subheader("📥 결과 다운로드")
-            
-            download_content = result_processor.create_download_content(
-                st.session_state.requirement_input, 
-                st.session_state.analysis_result, 
-                st.session_state.checklist
-            )
-            
-            filename = result_processor.get_download_filename(st.session_state.requirement_input)
-            
-            col1, col2 = st.columns([3, 1])
-            with col1:
-                st.write("분석 결과와 체크리스트를 마크다운 파일로 다운로드합니다.")
-            with col2:
-                st.download_button(
-                    label="📥 분석 결과 다운로드",
-                    data=download_content,
-                    file_name=filename,
-                    mime="text/markdown",
-                    use_container_width=True,
-                    key="download_btn"
-                )
         
         # 새 분석 시작 버튼
         st.markdown("---")

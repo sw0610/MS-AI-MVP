@@ -1,6 +1,8 @@
 from openai import AzureOpenAI, OpenAI
 import streamlit as st
 from config import Config
+from pdf_search_client import PDFSearchClient
+import json
 
 class OpenAIClient:
     def __init__(self):
@@ -17,6 +19,9 @@ class OpenAIClient:
                 api_key=Config.OPENAI_API_KEY
             )
             self.deployment_name = Config.DEPLOYMENT_NAME  # 또는 원하는 모델명
+        
+        # PDF 검색 클라이언트 초기화
+        self.pdf_client = PDFSearchClient()
     
     def get_response(self, messages, temperature=None):
         # OpenAI API를 통해 응답을 받는 함수
@@ -36,6 +41,23 @@ class OpenAIClient:
     
     def analyze_requirements(self, requirement_text, analysis_type="기본 분석", focus_areas=None):
         # 사용자 요구사항을 분석하고 확인이 필요한 사항들을 찾는 함수
+        
+        # 1. 기본 분석 실행
+        basic_analysis = self._basic_analysis(requirement_text, analysis_type, focus_areas)
+        
+        # 2. PDF 매뉴얼 기반 추가 분석 (가능한 경우)
+        manual_analysis = None
+        if self.pdf_client.retriever and self.pdf_client.llm:
+            manual_analysis = self.pdf_client.analyze_with_manual(requirement_text, focus_areas)
+        
+        # 3. 분석 결과 통합
+        if manual_analysis:
+            return self._combine_analysis_results(basic_analysis, manual_analysis)
+        else:
+            return basic_analysis
+    
+    def _basic_analysis(self, requirement_text, analysis_type, focus_areas):
+        """기본 요구사항 분석"""
         focus_text = ""
         if focus_areas:
             focus_text = f"\n특히 다음 영역에 집중해서 분석해주세요: {', '.join(focus_areas)}\n"
@@ -88,6 +110,31 @@ class OpenAIClient:
         
         return self.get_response(messages)
     
+    def _combine_analysis_results(self, basic_analysis, manual_analysis):
+        """기본 분석과 매뉴얼 기반 분석 결과를 통합"""
+        try:
+            basic_data = json.loads(basic_analysis) if isinstance(basic_analysis, str) else basic_analysis
+            manual_data = json.loads(manual_analysis["analysis_result"]) if isinstance(manual_analysis["analysis_result"], str) else manual_analysis["analysis_result"]
+            
+            # 통합된 분석 결과 생성
+            combined_result = {
+                "analysis_summary": f"{basic_data.get('analysis_summary', '')}\n\n[매뉴얼 기반 추가 분석]\n{manual_data.get('analysis_summary', '')}",
+                "manual_references": manual_data.get('manual_references', []),
+                "clarification_needed": basic_data.get('clarification_needed', []) + manual_data.get('clarification_needed', []),
+                "potential_issues": basic_data.get('potential_issues', []) + manual_data.get('potential_issues', []),
+                "business_impact": f"{basic_data.get('business_impact', '')}\n\n[시스템 연관성]\n{manual_data.get('business_impact', '')}",
+                "manual_search_info": {
+                    "search_keywords": manual_analysis["search_info"]["search_keywords"],
+                    "doc_count": len(manual_analysis["search_info"]["relevant_docs"])
+                }
+            }
+            
+            return json.dumps(combined_result, ensure_ascii=False, indent=2)
+            
+        except (json.JSONDecodeError, KeyError, TypeError) as e:
+            st.warning(f"분석 결과 통합 중 오류 발생: {e}")
+            return basic_analysis
+    
     def generate_checklist(self, requirement_text, analysis_result, priority_level="보통"):
         # 분석 결과를 바탕으로 체크리스트를 생성하는 함수
         priority_instruction = {
@@ -109,6 +156,7 @@ class OpenAIClient:
 - [ ] 구체적인 확인/작업 항목 (담당자: 기획/개발/디자인)
 - 각 항목은 실제로 체크할 수 있는 구체적인 내용이어야 합니다.
 - 담당자를 명시하여 역할을 명확히 해주세요.
+- 매뉴얼 참고사항이 있다면 포함해주세요.
 
 ## 📋 개발 전 확인사항
 - [ ] 예시 항목 (담당자: 기획)
@@ -124,8 +172,14 @@ class OpenAIClient:
 """
 
         messages = [
-            {"role": "system", "content": "당신은 프로젝트 관리 전문가입니다. 실무에서 바로 사용할 수 있는 구체적이고 실행 가능한 체크리스트를 생성합니다."},
+            {"role": "system", "content": "당신은 프로젝트 관리 전문가입니다. 실무에서 바로 사용할 수 있는 구체적이고 실행 가능한 체크리스트를 생성합니다. 시스템 매뉴얼 정보가 있다면 이를 반영합니다."},
             {"role": "user", "content": prompt}
         ]
         
         return self.get_response(messages, temperature=Config.CHECKLIST_TEMPERATURE)
+    
+    def get_manual_context(self, requirement_text):
+        """매뉴얼 컨텍스트 정보 반환"""
+        if self.pdf_client.retriever:
+            return self.pdf_client.get_system_context(requirement_text)
+        return None
