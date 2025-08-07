@@ -133,10 +133,8 @@ streamlit run main.py
 ├── 📄 result_processor.py    # 결과 처리 및 표시
 ├── 📄 ui_components.py       # UI 컴포넌트
 ├── 📄 requirements.txt       # Python 의존성
-├── 📄 .env.example          # 환경변수 예시
-└── 📁 docs/                  # 문서 및 스크린샷
-    ├── 📁 screenshots/
-    └── 📄 deployment.md
+├── 📄 .env.example           # 환경변수 예시
+
 ```
 
 ## 🚀 Azure 배포
