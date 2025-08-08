@@ -135,19 +135,10 @@ class OpenAIClient:
             st.warning(f"분석 결과 통합 중 오류 발생: {e}")
             return basic_analysis
     
-    def generate_checklist(self, requirement_text, analysis_result, priority_level="보통"):
+    def generate_checklist(self, requirement_text, analysis_result):
         # 분석 결과를 바탕으로 체크리스트를 생성하는 함수
-        priority_instruction = {
-            "높음": "매우 상세하고 철저한 체크리스트를 만들어주세요.",
-            "보통": "실무에 필요한 핵심 항목들로 체크리스트를 만들어주세요.",
-            "낮음": "꼭 필요한 최소한의 항목들로 간단한 체크리스트를 만들어주세요."
-        }.get(priority_level, "실무에 필요한 핵심 항목들로 체크리스트를 만들어주세요.")
-        
         prompt = f"""
 다음 요구사항 분석 결과를 바탕으로 개발자와 기획자가 사용할 수 있는 체크리스트를 생성해주세요.
-
-우선순위: {priority_level}
-{priority_instruction}
 
 요구사항: {requirement_text}
 분석 결과: {analysis_result}
