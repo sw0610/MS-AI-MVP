@@ -251,7 +251,7 @@ def search_manual_content(self, requirement_text):
 
 
 ### ✅ 체크리스트 생성
-![create checklist](./data/체크리스트 생성.gif)
+![create checklist](./data/체크리스트_생성.gif)
 - 분석된 결과를 바탕으로 개발을 진행하면서 확인해야할 부분을 체크리스트로 생성합니다.
 - 개발 전, 개발 중, 개발 후, 배포 전 각 시기별로 나눠 확인하면 좋을 점을 제공해줍니다.
 
