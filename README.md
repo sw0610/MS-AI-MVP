@@ -246,7 +246,7 @@ def search_manual_content(self, requirement_text):
 - 매뉴얼을 보고 실제 기능과 연관된 부분은 매뉴얼 참고사항을 통해 어떤 부분이 연관되었는지 확인 가능합니다.
 
 
-![potential_problems](./data/잠재적 문제점.png)
+![potential_problems](./data/잠재적_문제점.png)
 - 잠재적 문제점들: 해당 기능을 도입했을 때 시스템에서 발생 가능한 잠재적 문제점을 분석하여 보여줍니다.
 
 
