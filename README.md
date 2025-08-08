@@ -64,6 +64,8 @@ https://wish-webapp-e2hgetaedkbpdwdc.swedencentral-01.azurewebsites.net/
 - **Azure OpenAI GPT-4** - 요구사항 분석 및 추론
 - **LangChain** - RAG 파이프라인 구현
 - **Azure AI Search** - 벡터 검색 및 문서 인덱싱
+- **Azure OpenAI text-embedding-3-small** - RAG 문서 처리
+ 
 
 ### Frontend & Deployment
 - **Streamlit** - 웹 인터페이스
